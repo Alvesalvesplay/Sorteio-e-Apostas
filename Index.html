@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Tarefa 011</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <script src='main.js'></script>
+    
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+      text-align: center;
+    }
+
+    #app {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    #historico-section table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    #historico-section th, #historico-section td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    #historico-section th {
+      background: #eee;
+    }
+
+    .red-bg {
+      background: #f3838d;
+    }
+
+    .green-bg {
+      background: #8be6a1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Sorteio e Apostas</h1>
+    <div id="saldo-section">
+      <label for="saldo">Saldo:</label>
+      <span id="saldo">0</span> €
+      <button id="carregar-saldo-btn">Carregar Saldo</button>
+    </div>
+
+    <div id="jogo-section">
+      <form id="aposta-form">
+        <label for="valor-aposta">Valor da Aposta:</label>
+        <input type="number" id="valor-aposta" min="1" required>
+        <label for="palpite">Palpite (1 a 10):</label>
+        <input type="number" id="palpite" min="1" max="10" required>
+        <button type="submit">Fazer Aposta</button>
+      </form>
+      <button id="jogar-com-dicas">Jogar com Dicas</button>
+    </div>
+
+    <div id="historico-section">
+      <h2>Histórico de Apostas</h2>
+      <table id="historico">
+        <thead>
+          <tr>
+            <th>Tentativa</th>
+            <th>Valor Apostado</th>
+            <th>Palpite</th>
+            <th>Resultado</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div id="mensagem-final"></div>
+  </div>
+  <script>
+    let saldo = 0;
+    let numeroSorteado = Math.floor(Math.random() * 10) + 1;
+    let tentativas = 0;
+    let dicasAtivadas = false;
+
+    document.getElementById("carregar-saldo-btn").addEventListener("click", () => {
+      saldo += 10; 
+      atualizarSaldo();
+    });
+
+    document.getElementById("aposta-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const valorAposta = parseInt(document.getElementById("valor-aposta").value);
+      const palpite = parseInt(document.getElementById("palpite").value);
+
+      if (valorAposta > saldo) {
+        alert("Saldo insuficiente!");
+        return;
+      }
+
+      tentativas++;
+      saldo -= valorAposta;
+
+      const resultado = document.createElement("tr");
+      let acertou = palpite === numeroSorteado;
+
+      if (acertou) {
+        document.body.classList.add("green-bg");
+        saldo += dicasAtivadas ? valorAposta * 0.9 : valorAposta * 2;
+        bloquearInputs();
+        document.getElementById("mensagem-final").innerText = `Parabéns! Acertaste o número ${numeroSorteado}!`;
+      } else {
+        document.body.classList.add("red-bg");
+      }
+
+      resultado.innerHTML = `
+        <td>${tentativas}</td>
+        <td>${valorAposta}€</td>
+        <td>${palpite}</td>
+        <td>${acertou ? "Certo" : "Errado"}</td>
+      `;
+      document.querySelector("#historico tbody").appendChild(resultado);
+
+      atualizarSaldo();
+    });
+
+    document.getElementById("jogar-com-dicas").addEventListener("click", () => {
+      dicasAtivadas = true;
+      const pista = numeroSorteado > 5 ? "O número é maior que 5" : "O número é menor ou igual a 5";
+      alert(pista);
+    });
+
+    function atualizarSaldo() {
+      document.getElementById("saldo").innerText = saldo;
+    }
+
+    function bloquearInputs() {
+      document.getElementById("valor-aposta").disabled = true;
+      document.getElementById("palpite").disabled = true;
+      document.querySelector("#aposta-form button").disabled = true;
+    }
+  </script>
+</body>
+</html>
